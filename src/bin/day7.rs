@@ -2,17 +2,6 @@ use anyhow::Result;
 use std::collections::HashMap;
 use std::fs::read_to_string;
 
-fn get_path_str(path: &Vec<&str>) -> String {
-    path.iter()
-        .map(|&p| {
-            if p != "/" {
-                return format!("{}/", p);
-            }
-            p.to_string()
-        })
-        .collect::<String>()
-}
-
 #[derive(Debug)]
 struct Path {
     dirs: HashMap<String, u64>,
@@ -23,11 +12,6 @@ struct Path {
 impl Path {
     fn push(&mut self, p: &str) {
         self.path.push(p.to_string());
-        // println!(
-        //     "Path::push {} = {:?}",
-        //     p,
-        //     self.get_path_str(self.path.clone())
-        // );
     }
 
     fn pop(&mut self) -> String {
@@ -39,13 +23,6 @@ impl Path {
         if last_dir_size <= 100_000 {
             self.less_than_100_000 += last_dir_size;
         }
-        // println!(
-        //     "Path::pop | {} | add: {} to path: {} ending with size: {:?}",
-        //     line!(),
-        //     last_dir_size,
-        //     previous_path_str,
-        //     self.dirs.get(&previous_path_str)
-        // );
 
         pop
     }
@@ -59,12 +36,6 @@ impl Path {
 
     fn add(&mut self, number: u64) {
         let path_str = self.get_path_str(self.path.clone());
-        // println!(
-        //     "Path::add | {} | add: {} to path: {}",
-        //     line!(),
-        //     number,
-        //     path_str
-        // );
         self.add_to_path(path_str, number);
     }
 
@@ -83,40 +54,21 @@ impl Path {
         self.path.len()
     }
 
-    fn get_sum_until(&self, max_size: usize) -> usize {
-        let mut dirs_in_vec = self.dirs.iter().collect::<Vec<_>>();
-        dirs_in_vec.sort_unstable_by(|a, b| a.1.cmp(b.1));
+    fn get_total(&self, total_space: u64, space_to_delete: u64) -> u64 {
+        let free_space = total_space - self.dirs.get("/").unwrap();
+        let space_required = space_to_delete - free_space;
 
-        let mut in_order_sum = 0u64;
-        let mut sums = vec![];
-        for (i, (n, s)) in dirs_in_vec.iter().enumerate() {
-            if in_order_sum + **s < max_size as u64 {
-                in_order_sum += **s;
-            }
-            let mut sum = **s;
-            let part = dirs_in_vec.split_at(i);
-            for (nn, ss) in part.1.iter().skip(1) {
-                if sum + *ss <= max_size as u64 {
-                    sum += *ss;
-                    sums.push((format!("{}({}) + {}({}) = {}", n, s, nn, ss, sum), sum));
-                }
-            }
-        }
-        println!(
-            "sorted by size sums: {:?}",
-            sums.iter()
-                .map(|(_, s)| *s)
-                .collect::<Vec<u64>>()
-                .iter()
-                .sum::<u64>()
-        );
-        in_order_sum as usize
+        self.dirs
+            .iter()
+            .filter(|(_, s)| **s >= space_required)
+            .map(|(_, s)| return *s)
+            .min()
+            .unwrap()
     }
 }
 
 fn main() -> Result<(), anyhow::Error> {
     let test_input = read_to_string("src/bin/input_day7.txt")?;
-    let max_size = 100_000;
     let mut main_path = Path {
         path: vec![],
         dirs: HashMap::new(),
@@ -145,7 +97,7 @@ fn main() -> Result<(), anyhow::Error> {
     }
 
     println!("less_than_100_000: {}", main_path.less_than_100_000);
-    println!("total: {:?}", main_path.get_sum_until(max_size));
+    println!("part two: get total: {}", main_path.get_total(70000000, 30000000));
 
     Ok(())
 }
