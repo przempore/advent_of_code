@@ -39,8 +39,8 @@ fn find_word_of_number(word: &str) -> Option<i32> {
 
 fn get_numbers_from_line(line: &str) -> Option<Vec<i32>> {
     let fun = |current: String, x: char| {
-        if x.is_digit(10) {
-            return ControlFlow::Break(x.to_digit(10).unwrap() as i32);
+        if let Some(dig) = x.to_digit(10)  {
+            return ControlFlow::Break(dig as i32);
         }
         if let Some(dig) = find_word_of_number(&current) {
             return ControlFlow::Break(dig);
