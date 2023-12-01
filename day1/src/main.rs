@@ -1,4 +1,5 @@
 use std::fs::read_to_string;
+use std::ops::ControlFlow;
 
 fn get_numbers_from_string(line: &str) -> Vec<u32> {
     line.chars()
@@ -36,42 +37,43 @@ fn find_word_of_number(word: &str) -> Option<i32> {
         .find_map(|x| if word.contains(x.0) { Some(x.1) } else { None })
 }
 
-fn get_numbers_from_line(line: &str) -> Vec<i32> {
-    let mut numbers = vec![];
-    let mut current = String::new();
-    for char in line.chars() {
-        current.push(char);
-        if char.is_digit(10) {
-            numbers.push(char.to_digit(10).unwrap() as i32);
-            break;
+fn get_numbers_from_line(line: &str) -> Option<Vec<i32>> {
+    let fun = |current: String, x: char| {
+        if x.is_digit(10) {
+            return ControlFlow::Break(x.to_digit(10).unwrap() as i32);
         }
         if let Some(dig) = find_word_of_number(&current) {
-            numbers.push(dig);
-            break;
+            return ControlFlow::Break(dig);
+        }
+        return ControlFlow::Continue(current);
+    };
+    let front = line.chars().enumerate().try_fold(String::new(), |acc, x| {
+        let current = format!("{}{}", acc, x.1);
+        fun(current, x.1)
+    });
+    let back = line
+        .chars()
+        .rev()
+        .enumerate()
+        .try_fold(String::new(), |acc, x| {
+            let current = format!("{}{}", x.1, acc);
+            fun(current, x.1)
+        });
+
+    if let ControlFlow::Break(front) = front {
+        if let ControlFlow::Break(back) = back {
+            return Some(vec![front, back]);
         }
     }
 
-    current = String::new();
-
-    for char in line.chars().rev() {
-        current = format!("{}{}", char, current);
-        if char.is_digit(10) {
-            numbers.push(char.to_digit(10).unwrap() as i32);
-            break;
-        }
-        if let Some(dig) = find_word_of_number(&current) {
-            numbers.push(dig);
-            break;
-        }
-    }
-
-    numbers
+    None
 }
 
 fn second_part(input: &str) -> i32 {
     input
         .lines()
         .map(|line| get_numbers_from_line(line))
+        .filter_map(|number| number)
         .map(|number| number[0] * 10 + number[1])
         .sum::<i32>()
 }
@@ -82,17 +84,17 @@ fn main() {
     let numbers = first_part(&input);
     println!("first part example: {:?}", numbers);
 
-    let input = std::fs::read_to_string("day1/src/input_first_part.txt")
+    let input = read_to_string("day1/src/input_first_part.txt")
         .expect("input_first_part file not found");
     let numbers = first_part(&input);
     println!("first part: {:?}", numbers);
 
-    let input = std::fs::read_to_string("day1/src/input_second_part_example.txt")
+    let input = read_to_string("day1/src/input_second_part_example.txt")
         .expect("input_second_part_example file not found");
     let numbers = second_part(&input);
     println!("second part example: {:?}", numbers);
 
-    let input = std::fs::read_to_string("day1/src/input_second_part.txt")
+    let input = read_to_string("day1/src/input_second_part.txt")
         .expect("input_second_part file not found");
     let numbers = second_part(&input);
     println!("second part: {:?}", numbers);
