@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs::read_to_string;
 
 fn get_winning_and_owned_numbers(input: &str) -> (Vec<u32>, Vec<u32>) {
@@ -20,7 +21,6 @@ fn part1(input: &str) -> usize {
         .lines()
         .map(|l| {
             let (winning_numbers, owned_numbers) = get_winning_and_owned_numbers(l);
-
             owned_numbers.iter().fold(0usize, |acc, n| {
                 if !winning_numbers.contains(n) {
                     return acc;
@@ -37,30 +37,25 @@ fn part1(input: &str) -> usize {
 }
 
 fn part2(input: &str) -> u32 {
-    let mut cards_points = Vec::new();
-    for (idx, l) in input.lines().enumerate() {
-        if let Some(_) = cards_points.get(idx) {
-            cards_points[idx] += 1;
-        } else {
-            cards_points.push(1);
-        }
-        let (winning_numbers, owned_numbers) = get_winning_and_owned_numbers(l);
-        let points = owned_numbers
-            .iter()
-            .filter(|n| winning_numbers.contains(n))
-            .count() as u32;
-
-        for copy_idx in idx + 1..idx + 1 + points as usize {
-            if let Some(_) = cards_points.get(copy_idx) {
-                cards_points[copy_idx] += cards_points[idx];
-            } else {
-                cards_points.push(0);
-                cards_points[copy_idx] += cards_points[idx];
+    let sum = input
+        .lines()
+        .enumerate()
+        .fold(HashMap::new(), |mut acc, (idx, l)| {
+            let (winning_numbers, owned_numbers) = get_winning_and_owned_numbers(l);
+            let points = owned_numbers
+                .iter()
+                .filter(|n| winning_numbers.contains(n))
+                .count();
+            let current_acc = acc.entry(idx).and_modify(|c| *c += 1).or_insert(1).clone();
+            for i in idx + 1..idx + 1 + points {
+                acc.entry(i)
+                    .and_modify(|c: &mut u32| *c += current_acc)
+                    .or_insert(current_acc);
             }
-        }
-    }
+            acc
+        });
 
-    cards_points.iter().sum()
+    sum.iter().map(|(_, v)| v).sum::<u32>()
 }
 
 fn main() {
