@@ -48,6 +48,25 @@ impl Product {
     }
 }
 
+fn get_products(input: &str) -> Vec<Product> {
+    input
+        .lines()
+        .skip(1)
+        .filter(|l| !l.is_empty())
+        .fold(Vec::new(), |mut acc, l| {
+            let mut product = Product::default();
+            if l.contains("map") {
+                product.parse_config(l);
+                acc.push(product);
+            } else {
+                if let Some(last) = acc.last_mut() {
+                    last.parse_numbers(l);
+                }
+            }
+            acc
+        })
+}
+
 fn part1(input: &str) -> Option<u64> {
     let seeds = input.lines().take(1).map(|l| l).collect::<String>();
     let numbers = seeds.split_terminator(':').collect::<Vec<_>>();
@@ -57,33 +76,12 @@ fn part1(input: &str) -> Option<u64> {
         .map(|n| n.parse::<u64>().expect("Error parsing seeds numbers"))
         .collect::<Vec<_>>();
 
-    let products =
-        input
-            .lines()
-            .skip(1)
-            .filter(|l| !l.is_empty())
-            .fold(Vec::new(), |mut acc, l| {
-                let mut product = Product::default();
-                if l.contains("map") {
-                    product.parse_config(l);
-                    acc.push(product);
-                } else {
-                    if let Some(last) = acc.last_mut() {
-                        last.parse_numbers(l);
-                    }
-                }
-                acc
-            });
-
+    let products = get_products(input);
     let locations = seeds
         .iter()
         .map(|s| {
             let destination = products.iter().fold(*s, |seed, product| {
                 let destination = product.get_destination(seed);
-                println!(
-                    "{}[{}] -> {}[{}]",
-                    product.source, seed, product.destination, destination
-                );
                 destination
             });
             destination
@@ -91,6 +89,37 @@ fn part1(input: &str) -> Option<u64> {
         .collect::<Vec<_>>();
 
     locations.iter().min().copied()
+}
+
+fn part2(input: &str) -> u64 {
+    let seeds = input.lines().take(1).map(|l| l).collect::<String>();
+    let seeds = seeds.split_terminator(':').collect::<Vec<_>>()[1];
+    let seeds = seeds.split_whitespace().collect::<Vec<_>>();
+    let seeds = seeds
+        .iter()
+        .map(|n| {
+            let n = n.trim();
+            n.parse::<u64>().expect("Error parsing seeds numbers")
+        })
+        .collect::<Vec<_>>();
+
+    let products = get_products(input);
+    let mut min = std::u64::MAX;
+    for i in (0..seeds.len()).step_by(2) {
+        let start_number = seeds.get(i).unwrap();
+        let length = seeds.get(i + 1).unwrap();
+        for j in *start_number..*start_number + *length {
+            let seed = j;
+            let destination = products.iter().fold(seed, |s, product| {
+                let destination = product.get_destination(s);
+                destination
+            });
+            if destination < min {
+                min = destination;
+            }
+        }
+    }
+    min
 }
 
 fn main() {
@@ -107,4 +136,9 @@ fn main() {
     if let Some(result) = result {
         println!("Part 1 result: {:?}", result);
     }
+
+    let input =
+        read_to_string("day5/src/input_part1.txt").expect("Error reading day5/src/input_part1");
+    let result = part2(&input);
+    println!("Part 1 result: {:?}", result);
 }
