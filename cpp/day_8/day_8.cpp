@@ -82,22 +82,19 @@ std::optional<Content> parse_file(const std::string& filename) {
     return content;
 }
 
-std::optional<int> part1(Content& content) {
+int part1(const Content& content) {
     int64_t steps{0};
     int instruction_idx{0};
-    content.current_node = "AAA";
-    while (content.current_node != "ZZZ") {
+    std::string current_node = "AAA";
+    while (current_node != "ZZZ") {
         char instruction =
             content.instruction[instruction_idx % content.instruction.size()];
         instruction_idx++;
 
         if (instruction == 'L') {
-            content.current_node = content.network[content.current_node].first;
-        } else if (instruction == 'R') {
-            content.current_node = content.network[content.current_node].second;
+            current_node = content.network.at(current_node).first;
         } else {
-            std::cerr << "Unknown instruction: " << instruction << std::endl;
-            return std::nullopt;
+            current_node = content.network.at(current_node).second;
         }
         steps++;
     }
@@ -105,7 +102,7 @@ std::optional<int> part1(Content& content) {
     return steps;
 }
 
-std::optional<int> part2(Content& content) {
+std::vector<std::string> get_nodes(const Content& content) {
     Content::Network current_nodes_pairs;
     std::ranges::copy_if(
         content.network,
@@ -117,28 +114,33 @@ std::optional<int> part2(Content& content) {
                            std::back_inserter(current_nodes),
                            [](auto& v) { return v.first; });
 
+    return current_nodes;
+}
+
+bool all_ends_with_Z(const std::vector<std::string>& nodes) {
+    // std::ranges::copy(nodes,
+    //                   std::ostream_iterator<std::string>(std::cout, " "));
+    // std::cout << std::endl;
+
+    return std::ranges::all_of(nodes, [](auto& v) { return v.back() == 'Z'; });
+}
+
+int part2(const Content& content) {
+    auto current_nodes = get_nodes(content);
+
     int64_t steps{0};
     int instruction_idx{0};
-    while (std::ranges::any_of(current_nodes,
-                               [](auto& v) { return v.back() != 'Z'; })) {
+    while (not all_ends_with_Z(current_nodes)) {
         const char instruction =
             content.instruction[instruction_idx % content.instruction.size()];
         instruction_idx++;
         for (auto& v : current_nodes) {
             if (instruction == 'L') {
-                v = content.network[v].first;
-            } else if (instruction == 'R') {
-                v = content.network[v].second;
+                v = content.network.at(v).first;
             } else {
-                std::cerr << "Unknown instruction: " << instruction
-                          << std::endl;
+                v = content.network.at(v).second;
             }
-        };
-
-        if (steps >= std::numeric_limits<int64_t>::max()) {
-            return steps;
         }
-
         steps++;
     }
 
@@ -150,21 +152,20 @@ int main(int argc, char** argv) {
     if (not example_1.has_value()) {
         return 1;
     }
-    std::cout << "Part 1: Example steps: "
-              << part1(example_1.value()).value_or(0) << std::endl;
+    std::cout << "Part 1: Example steps: " << part1(example_1.value())
+              << std::endl;
     std::optional<Content> example_2 = parse_file("input_example_2.txt");
     if (not example_2.has_value()) {
         return 1;
     }
-    std::cout << "Part 1: Example steps: "
-              << part1(example_2.value()).value_or(0) << std::endl;
+    std::cout << "Part 1: Example steps: " << part1(example_2.value())
+              << std::endl;
 
     std::optional<Content> part1_content = parse_file("input_part1.txt");
     if (not part1_content.has_value()) {
         return 1;
     }
-    std::cout << "Part 1 steps: " << part1(part1_content.value()).value_or(0)
-              << std::endl;
+    std::cout << "Part 1 steps: " << part1(part1_content.value()) << std::endl;
 
     std::optional<Content> part2_example_content =
         parse_file("part2_example.txt");
@@ -172,14 +173,13 @@ int main(int argc, char** argv) {
         return 1;
     }
     std::cout << "Part 2: Example steps: "
-              << part2(part2_example_content.value()).value_or(0) << std::endl;
+              << part2(part2_example_content.value()) << std::endl;
 
     std::optional<Content> part2_input = parse_file("input_part1.txt");
     if (not part2_input.has_value()) {
         return 1;
     }
-    std::cout << "Part 2 steps: " << part2(part2_input.value()).value_or(0)
-              << std::endl;
+    std::cout << "Part 2 steps: " << part2(part2_input.value()) << std::endl;
 
     return 0;
 }
