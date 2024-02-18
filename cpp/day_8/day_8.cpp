@@ -86,18 +86,12 @@ int part1(const Content& content) {
 }
 
 std::vector<std::string> get_nodes(const Content& content) {
-    Content::Network current_nodes_pairs;
-    std::ranges::copy_if(
-        content.network,
-        std::inserter(current_nodes_pairs, current_nodes_pairs.begin()),
-        [](auto& v) { return v.first.back() == 'A'; });
+    auto view =
+        content.network |
+        std::views::filter([](auto& v) { return v.first.back() == 'A'; }) |
+        std::views::transform([](auto& v) { return v.first; });
 
-    std::vector<std::string> current_nodes;
-    std::ranges::transform(current_nodes_pairs,
-                           std::back_inserter(current_nodes),
-                           [](auto& v) { return v.first; });
-
-    return current_nodes;
+    return std::vector<std::string>(view.begin(), view.end());
 }
 
 bool all_ends_with_Z(const std::vector<std::string>& nodes) {
