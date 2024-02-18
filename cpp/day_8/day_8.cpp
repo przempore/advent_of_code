@@ -17,8 +17,6 @@ struct Content {
         std::unordered_map<std::string, std::pair<std::string, std::string>>;
     std::string instruction{""};
     Network network{};
-    std::string current_node{""};
-    int current_instruction_index{0};
 };
 
 std::ostream& operator<<(std::ostream& os, const Content& content) {
@@ -29,31 +27,16 @@ std::ostream& operator<<(std::ostream& os, const Content& content) {
         os << "\t\t" << key << " -> {" << value.first << " " << value.second
            << "}" << std::endl;
     }
-    os << "\tCurrent node: " << content.current_node << std::endl;
     return os;
 }
 
-std::string remove_all_whitespaces(std::string input) {
-    input.erase(std::remove_if(input.begin(), input.end(), ::isspace),
-                input.end());
-    return input;
-}
-
 std::pair<std::string, std::pair<std::string, std::string>> parse_line(
-    const std::string& line) {
-    std::string line_without_whitespaces = remove_all_whitespaces(line);
-
-    std::pair<std::string, std::pair<std::string, std::string>> result;
-
-    const size_t equal_sign_pos = line_without_whitespaces.find('=');
-    result.first = line_without_whitespaces.substr(0, equal_sign_pos);
-    const size_t first_comma_pos = line_without_whitespaces.find(',');
-    result.second.first =
-        line_without_whitespaces.substr(equal_sign_pos + 2, 3);
-    result.second.second =
-        line_without_whitespaces.substr(first_comma_pos + 1, 3);
-
-    return result;
+    std::string& line) {
+    std::ranges::remove_if(line, ::isspace);
+    const size_t equal_sign_pos = line.find('=');
+    return {line.substr(0, equal_sign_pos),
+            {line.substr(equal_sign_pos + 2, 3),
+             line.substr(line.find(',') + 1, 3)}};
 }
 
 std::optional<Content> parse_file(const std::string& filename) {
