@@ -105,23 +105,24 @@ bool all_ends_with_Z(const std::vector<std::string>& nodes) {
 int part2(const Content& content) {
     auto current_nodes = get_nodes(content);
 
-    int64_t steps{0};
+    std::vector<int64_t> steps(current_nodes.size(), 0);
     int instruction_idx{0};
     while (not all_ends_with_Z(current_nodes)) {
         const char instruction =
             content.instruction[instruction_idx % content.instruction.size()];
         instruction_idx++;
-        for (auto& v : current_nodes) {
+        for (std::tuple<std::string&, int&>& v : std::views::zip(current_nodes, steps)) {
             if (instruction == 'L') {
-                v = content.network.at(v).first;
+                std::get<0>(v) = content.network.at(std::get<0>(v)).first;
             } else {
-                v = content.network.at(v).second;
+                std::get<0>(v) = content.network.at(std::get<0>(v)).second;
             }
+            std::get<1>(v) += 1;
         }
-        steps++;
+        // steps++;
     }
 
-    return steps;
+    return 0;
 }
 
 int main(int argc, char** argv) {

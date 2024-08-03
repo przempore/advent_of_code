@@ -79,22 +79,22 @@ fn second_part(input: &str) -> i32 {
 }
 
 fn main() {
-    let input = read_to_string("day1/src/input_first_part_example.txt")
+    let input = read_to_string("2023/day1/src/input_first_part_example.txt")
         .expect("input_example file not found");
     let numbers = first_part(&input);
     println!("first part example: {:?}", numbers);
 
-    let input = read_to_string("day1/src/input_first_part.txt")
+    let input = read_to_string("2023/day1/src/input_first_part.txt")
         .expect("input_first_part file not found");
     let numbers = first_part(&input);
     println!("first part: {:?}", numbers);
 
-    let input = read_to_string("day1/src/input_second_part_example.txt")
+    let input = read_to_string("2023/day1/src/input_second_part_example.txt")
         .expect("input_second_part_example file not found");
     let numbers = second_part(&input);
     println!("second part example: {:?}", numbers);
 
-    let input = read_to_string("day1/src/input_second_part.txt")
+    let input = read_to_string("2023/day1/src/input_second_part.txt")
         .expect("input_second_part file not found");
     let numbers = second_part(&input);
     println!("second part: {:?}", numbers);

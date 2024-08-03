@@ -3,29 +3,33 @@
 version = 3
 
 [[package]]
-name = "day1"
+name = "y2022-day1"
 version = "0.1.0"
 
 [[package]]
-name = "day2"
+name = "y2023-day1"
 version = "0.1.0"
 
 [[package]]
-name = "day3"
+name = "y2023-day2"
 version = "0.1.0"
 
 [[package]]
-name = "day4"
+name = "y2023-day3"
 version = "0.1.0"
 
 [[package]]
-name = "day5"
+name = "y2023-day4"
 version = "0.1.0"
 
 [[package]]
-name = "day6"
+name = "y2023-day5"
 version = "0.1.0"
 
 [[package]]
-name = "day7"
+name = "y2023-day6"
+version = "0.1.0"
+
+[[package]]
+name = "y2023-day7"
 version = "0.1.0"
