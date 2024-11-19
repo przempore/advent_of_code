@@ -1,5 +1,6 @@
 {
   inputs = {
+    nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     nixpkgs.url = "github:cachix/devenv-nixpkgs/rolling";
     # systems.url = "github:nix-systems/default";
     devenv.url = "github:cachix/devenv";
@@ -14,7 +15,7 @@
     extra-substituters = "https://devenv.cachix.org";
   };
 
-  outputs = { self, nixpkgs, devenv, /* systems, */ ... } @ inputs:
+  outputs = { self, nixpkgs, devenv, nixpkgs-unstable, /* systems, */ ... } @ inputs:
     let
       supportedSystems = [ "x86_64-linux" ];
       # forEachSystem = nixpkgs.lib.genAttrs (import systems);
@@ -31,6 +32,7 @@
         (system:
           let
             pkgs = nixpkgs.legacyPackages.${system};
+            pkgs-unstable = nixpkgs-unstable.legacyPackages.${system};
           in
           {
             default = devenv.lib.mkShell {
@@ -77,14 +79,19 @@
                   # https://devenv.sh/reference/options/
                   packages = [
                     # pkgs.stdenv.cc.cc.lib
+                    # pkgs-unstable.gcc14
                     pkgs.gcc
                     pkgs.ninja
                     pkgs.clang-tools
+                    pkgs.cmake
+
+                    pkgs.fmt
                   ];
 
                   enterShell = ''
                     gcc --version
                     echo "ninja version $(ninja --version)"
+                    cmake --version
                   '';
                 }
               ];

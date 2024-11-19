@@ -8,6 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
+find_package(fmt REQUIRED)
 
 if (CMAKE_GENERATOR STREQUAL "Ninja" OR CMAKE_GENERATOR STREQUAL "Unix Makefiles")
     execute_process(
@@ -20,3 +21,8 @@ endif()
 
 
 add_executable(solution main.cpp)
+
+target_link_libraries(solution
+    PRIVATE
+        fmt::fmt
+)
