@@ -75,7 +75,6 @@
                 {
                   # https://devenv.sh/reference/options/
                   packages = [
-                    # pkgs.stdenv.cc.cc.lib
                     # pkgs-unstable.gcc14
                     pkgs.gcc
                     pkgs.ninja
