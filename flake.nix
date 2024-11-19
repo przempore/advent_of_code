@@ -2,7 +2,7 @@
   inputs = {
     nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     nixpkgs.url = "github:cachix/devenv-nixpkgs/rolling";
-    # systems.url = "github:nix-systems/default";
+    systems.url = "github:nix-systems/default";
     devenv.url = "github:cachix/devenv";
     devenv.inputs.nixpkgs.follows = "nixpkgs";
     fenix.url = "github:nix-community/fenix";
@@ -15,11 +15,9 @@
     extra-substituters = "https://devenv.cachix.org";
   };
 
-  outputs = { self, nixpkgs, devenv, nixpkgs-unstable, /* systems, */ ... } @ inputs:
+  outputs = { self, nixpkgs, devenv, nixpkgs-unstable, systems, ... } @ inputs:
     let
-      supportedSystems = [ "x86_64-linux" ];
-      # forEachSystem = nixpkgs.lib.genAttrs (import systems);
-      forEachSystem = nixpkgs.lib.genAttrs supportedSystems;
+      forEachSystem = nixpkgs.lib.genAttrs (import systems);
     in
     {
       packages = forEachSystem (system: {
@@ -27,7 +25,6 @@
         devenv-test = self.devShells.${system}.default.config.test;
       });
 
-      # devShells = forEachSystem
       devShells = forEachSystem
         (system:
           let
