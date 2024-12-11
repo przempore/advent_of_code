@@ -8,7 +8,36 @@
 #include <string>
 #include <vector>
 
-std::vector<bool> is_safe(std::vector<int> const& numbers) {
+bool is_safe(std::vector<int> const& numbers) {
+    std::optional<bool> is_negative{std::nullopt};
+    int permissed = 0;
+    for (auto it = std::next(numbers.begin()); it != numbers.end(); ++it) {
+        int diff = *std::prev(it) - *it;
+        if (diff == 0) return false;
+        if (not is_negative.has_value()) {
+            is_negative = diff < 0;
+        }
+
+        if (std::abs(diff) > 3) {
+            // fmt::println("Should be at most 3 but it's {}", diff);
+            if (permissed++ > 1) return false;
+        }
+        if (is_negative.value()) {
+            if (diff > 0) {
+                // fmt::println("Should be negatve but it's {}", diff);
+                return false;
+            }
+        } else {
+            if (diff < 0) {
+                // fmt::println("Should be positive but it's {}", diff);
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+std::vector<bool> is_safe_vec(std::vector<int> const& numbers) {
     std::vector<bool> safe_values;
     safe_values.reserve(numbers.size());
     std::optional<bool> is_negative{std::nullopt};
@@ -71,7 +100,8 @@ void part_1(std::string const& file_path) {
 
     int safe_count{0};
     for (auto& n : numbers) {
-        if (std::ranges::all_of(is_safe(n), [](auto a) { return a == true; }))
+        if (std::ranges::all_of(is_safe_vec(n),
+                                [](auto a) { return a == true; }))
             safe_count++;
     }
 
@@ -106,9 +136,10 @@ void part_2(std::string const& file_path) {
 
     int safe_count{0};
     for (auto& n : numbers) {
-        auto count = std::ranges::count_if(is_safe(n),
+        auto count = std::ranges::count_if(is_safe_vec(n),
                                            [](auto a) { return a == false; });
-        if (count <= 1) {
+        // if (count <= 1) {
+        if (is_safe(n)) {
             // fmt::println("count <= 1: {}", count);
             safe_count++;
         }
