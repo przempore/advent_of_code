@@ -24,6 +24,7 @@ void part_1(const std::string& file_path) {
         a.push_back(i);
         b.push_back(j);
     }
+    infile.close();
 
     std::ranges::sort(a);
     std::ranges::sort(b);
@@ -55,6 +56,7 @@ void part_2(const std::string& file_path) {
         a.push_back(i);
         b.push_back(j);
     }
+    infile.close();
 
     std::vector<int> counts;
     for (int i = 0; i < a.size(); ++i) {
