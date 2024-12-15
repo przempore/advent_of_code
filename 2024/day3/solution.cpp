@@ -22,9 +22,11 @@ std::vector<int> extract_numbers(std::string const& file_content) {
     return numbers;
 }
 
-void part_1(std::string const& file_content) {
+int part_1(std::string const& file_content) {
     const auto numbers = extract_numbers(file_content);
 
     fmt::println("numbers: {}", fmt::join(numbers, ", "));
+
+    return 0;
 }
 

@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
     }
     std::stringstream buffer;
     buffer << infile.rdbuf();
-    part_1(buffer.str());
+    fmt::println("part_1: {}", part_1(buffer.str()));
 
     return 0;
 }
