@@ -136,8 +136,8 @@ void part_2(std::string const& file_path) {
 
     int safe_count{0};
     for (auto& n : numbers) {
-        auto count = std::ranges::count_if(is_safe_vec(n),
-                                           [](auto a) { return a == false; });
+        // auto count = std::ranges::count_if(is_safe_vec(n),
+        //                                    [](auto a) { return a == false; });
         // if (count <= 1) {
         if (is_safe(n)) {
             // fmt::println("count <= 1: {}", count);

@@ -82,6 +82,7 @@
                     pkgs.cmake
 
                     pkgs.fmt
+                    pkgs.gtest
                   ];
 
                   enterShell = ''
